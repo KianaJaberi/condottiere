@@ -1,11 +1,44 @@
 #include <iostream>
+#include <vector>
+#include <unordered_map>
 
 using namespace std ;
 
 class State {
     public :
+        void setName ( string n ){
+            name = n ;
+        }
+
+        string getName (){
+            return name ;
+        }
+
+        void setVicinityState ( string s ){
+            vicinityStates [ name ].push_back (s) ;
+        }
+
+        bool getVicinityState ( string s ){
+            for ( int i = 0 ; i < vicinityStates [name].size () ; i ++ ){
+                if ( s == vicinityStates [name][i]){
+                    return true ;
+                }
+            }
+            return false ;
+        }
+
+        void setStatus (){
+            status = true ;
+        }
+
+        bool getStatus (){
+            return status ;
+        }
 
     private :
+        string name ;
+        unordered_map < string , vector <string> > vicinityStates ;
+        bool status = false ;
 };
 
 class Player {
