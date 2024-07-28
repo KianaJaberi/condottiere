@@ -196,8 +196,98 @@ class PurpleCardSuper : public PurpleCard {
 
 class Condottiere {
     public :
+        void game (){
+            setStates () ;
+            setCards () ;
+        }
+
+        void setStates (){
+            string name ;
+            int number ;
+            ifstream file ;
+
+            file.open ( "states.txt" ) ;
+
+            for ( int i = 0 ; i < 14 ; i ++ ){
+                State temp ;
+
+                file >> name ;
+                temp.setName ( name ) ;
+
+                file >> number ;
+
+                for ( int j = 0 ; j < number ; j ++ ){
+                    file >> name ;
+                    temp.setVicinityState ( name ) ;
+                }
+
+                states.push_back ( temp ) ;
+            }
+            file.close () ;
+        }
+
+        void setCards (){
+            string name ;
+            int number , point , priority ;
+            ifstream file ;
+
+            file.open ( "cards.txt" ) ;
+
+            for ( int i = 0 ; i < 7 ; i ++){
+
+                file >> number ;
+                file >> name ;
+                file >> point ;
+
+                for ( int j = 0 ; j < number ; j ++ ){
+
+                    YellowCard temp ;
+                    temp.setName ( name ) ;
+                    temp.setPoint ( point ) ;
+
+                    cards.push_back ( &temp ) ;
+                }
+            }
+
+            for ( int i = 0 ; i < 6 ; i ++ ){
+
+                file >> number ;
+                file >> name ;
+                file >> priority ;
+
+                for ( int j = 0 ; j < number ; j ++ ){
+
+                    PurpleCard temp ;
+                    temp.setName ( name ) ;
+                    temp.setPriority ( priority ) ;
+
+                    cards.push_back ( &temp ) ;
+                }
+            }
+
+            for ( int i = 0 ; i < 2 ; i ++ ){
+
+                file >> number ;
+                file >> name ;
+                file >> point ;
+                file >> priority ;
+
+                for ( int j = 0 ; j < number ; j ++ ){
+
+                    PurpleCardSuper temp ;
+                    temp.setName ( name ) ;
+                    temp.setPoint ( point ) ;
+                    temp.setPriority ( priority ) ;
+
+                    cards.push_back ( &temp ) ;
+                }
+            }
+            file.close () ;
+        }
 
     private :
+        vector < State > states ;
+        vector < Card* > cards ;
 };
 
 int main (){
