@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -124,6 +125,12 @@ class Player {
             }
         }
 
+        void deleteCards (){
+            for ( int i = cards.size () ; i > 0 ; i -- ){
+                cards.pop_back () ;
+            }
+        }
+
     private :
         string name ;
         string color ;
@@ -133,20 +140,58 @@ class Player {
 
 class Card {
     public :
+        virtual void setName ( string n ){
+            name = n ;
+        }
+
+        virtual string getName (){
+            return name ;
+        }
 
     private :
+        string name ;
 };
 
-class YellowCards : public Card {
+class YellowCard : public Card {
     public :
+        void setPoint ( int p ){
+            point = p ;
+        }
+
+        int getPoint (){
+            return point ;
+        }
 
     private :
+        int point ;
 };
 
-class PurpleCards : public Card {
+class PurpleCard : public Card {
     public :
+        void setPriority ( int p ){
+            priority = p ;
+        }
+
+        int getPriority (){
+            return priority ;
+        }
 
     private :
+        int priority ;
+};
+
+class PurpleCardSuper : public PurpleCard {
+    public :
+        void setPoint ( int p ){
+            point = p ;
+        }
+
+        int getPoint (){
+            return point ;
+        }
+
+    private :
+        int point ;
 };
 
 class Condottiere {
