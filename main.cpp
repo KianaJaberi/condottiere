@@ -4,6 +4,8 @@
 #include <string>
 #include <unordered_map>
 #include <windows.h>
+#include <algorithm>
+#include <random>
 
 using namespace std ;
 
@@ -45,98 +47,96 @@ class State {
 };
 
 class Player {
-   public :
-       void setName ( string n ){
-           name = n ;
-       }
+    public :
+        void setName ( string n ){
+            name = n ;
+        }
 
-       string getName (){
-           return name ;
-       }
+        string getName (){
+        return name ;
+        }
 
-       void setColor ( string c ){
-           color = c ;
-       }
+        void setColor ( string c ){
+            color = c ;
+        }
 
-       string getColor (){
-           return color ;
-       }
+        string getColor (){
+            return color ;
+        }
 
-       void setStates ( State s ){
-           states.push_back (s) ;
-       }
+        void setStates ( State s ){
+            states.push_back (s) ;
+        }
 
-       int numberOfStates (){
-           return states.size () ;
-       }
+        int numberOfStates (){
+            return states.size () ;
+        }
 
-       bool checkStates (){
-           if ( states.size () == 5 ){
-               return true ;
-           }
-           else {
-               int counter = 0 ;
+        bool checkStates (){
+            if ( states.size () == 5 ){
+                return true ;
+            }
+            else {
+                int counter = 0 ;
 
-               for ( int i = 0 ; i < states.size () ; i ++ ){
-                   for ( int j = 0 ; j < states.size () ; j ++ ){
-                       if ( states [i].getVicinityState ( states [j].getName () ) == true ){
-                           counter ++ ;
-                       }
-                   }
+                for ( int i = 0 ; i < states.size () ; i ++ ){
+                    for ( int j = 0 ; j < states.size () ; j ++ ){
+                        if ( states [i].getVicinityState ( states [j].getName () ) == true ){
+                            counter ++ ;
+                        }
+                    }
 
-                   if ( counter == 2 ){
-                       return true ;
-                   }
-                   else {
-                       counter = 0 ;
-                   }
-               }
-               return false ;
-           }
-       }
+                    if ( counter == 2 ){
+                        return true ;
+                    }
+                    else {
+                        counter = 0 ;
+                    }
+                }
+                return false ;
+            }
+        }
 
-       void setCards ( vector < Card >& temp ){
-           for ( int i = 0 ; i < temp.size () ; i ++ ){
-               cards.push_back ( temp [i] ) ;
-           }
-       }
+        void setCard ( Card temp ){
+            cards.push_back ( temp ) ;
+        }
 
-       void getCards ( vector < Card >& temp ){
-           for ( int i = 0 ; i < cards.size () ; i ++ ){
-               temp [i] = cards [i] ;
-           }
-       }
+        void getCards ( vector < Card >& temp ){
+            for ( int i = 0 ; i < cards.size () ; i ++ ){
+                temp.push_back ( cards [i] ) ;
+            }
+        }
 
-       bool checkCards (){
-           if ( cards.size () == 0 ){
-               return true ;
-           }
-           else {
-               return false ;
-           }
-       }
+        bool checkCards (){
+            if ( cards.size () == 0 ){
+                return true ;
+            }
+            else {
+                return false ;
+            }
+        }
 
-       void deleteCard ( Card c ){
-           for ( int i = 0 ; i < cards.size () ; i ++ ){
-               if ( cards [i].getName () == c.getName () ){
-                   auto it = cards.begin () + i ;
-                   cards.erase ( it ) ;
-                   break ;
-               }
-           }
-       }
+        void deleteCard ( Card c ){
+            for ( int i = 0 ; i < cards.size () ; i ++ ){
+                if ( cards [i].getName () == c.getName () ){
+                    auto it = cards.begin () + i ;
+                    cards.erase ( it ) ;
+                    break ;
+                }
+            }
+        }
 
-       void deleteCards (){
-           for ( int i = cards.size () ; i > 0 ; i -- ){
-               cards.pop_back () ;
-           }
-       }
+        void deleteCards (){
+            for ( int i = cards.size () ; i > 0 ; i -- ){
+                cards.pop_back () ;
+            }
+        }
 
-   private :
-       string name ;
-       string color ;
-       vector < State > states ;
-       vector < Card > cards ;
+    private :
+        string name ;
+        string color ;
+        vector < State > states ;
+        vector < Card > cards ;
 };
 
 class Card {
@@ -201,6 +201,13 @@ class Condottiere {
             setStates () ;
             setCards () ;
             setInformation () ;
+
+            while ( checkWinner () == false ){
+                
+                if ( checkPlayersHands () == true ){
+                    shuffleCards () ;
+                }
+            }
         }
 
         void setStates (){
@@ -246,7 +253,7 @@ class Condottiere {
                     temp.setName ( name ) ;
                     temp.setPoint ( point ) ;
 
-                    cards.push_back ( &temp ) ;
+                    cards.push_back ( temp ) ;
                 }
             }
 
@@ -260,7 +267,7 @@ class Condottiere {
                     temp.setName ( name ) ;
                     temp.setPriority ( priority ) ;
 
-                    cards.push_back ( &temp ) ;
+                    cards.push_back ( temp ) ;
                 }
             }
 
@@ -276,7 +283,7 @@ class Condottiere {
                     temp.setPoint ( point ) ;
                     temp.setPriority ( priority ) ;
 
-                    cards.push_back ( &temp ) ;
+                    cards.push_back ( temp ) ;
                 }
             }
 
@@ -408,13 +415,70 @@ class Condottiere {
             }
         }
 
+        void shuffleCards (){
+            random_device rd;
+            mt19937 g ( rd () ) ;
+
+            shuffle ( cards.begin () , cards.end () , g ) ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                for ( int j = 0 ; j < 10 ; j ++ ){
+                    players [i].setCard ( cards [j] ) ;
+                }
+                for ( int k = 0 ; k < players [i].numberOfStates () ; k ++ ){
+                    players [i].setCard ( cards [ 10 + k ] ) ;
+                }
+
+                for ( int s = 0 ; s < ( 10 + players [i].numberOfStates () ) ; s ++ ){
+                    cards.erase ( cards.begin () ) ;
+                }
+            }
+        }
+
+        bool checkWinner (){
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                if ( players [i].checkStates () == true ){
+                    return true ;
+                }
+            }
+            return false ;
+        }
+
+        bool checkPlayersHands (){
+            int counter = 0 ;
+            int temp = -1 ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                if ( players [i].checkCards () == false ){
+                    counter ++ ;
+                    temp = i ;
+                }
+            }
+
+            if ( counter == 0 ){
+                return true ;
+            }
+            else if ( counter == 1 ){
+                players [ temp ].getCards ( cards ) ;
+                players [ temp ].deleteCards () ;
+
+                return true ;
+            }
+            else if ( counter > 1 ){
+                return false ;
+            }
+        }
+
     private :
         vector < State > states ;
-        vector < Card* > cards ;
+        vector < Card > cards ;
         vector < Player > players ;
+        vector < vector < Card > > cardsPlayed ;
         int numberOfPlayers ;
         int warBadgeHolder = 0 ;
 };
 
 int main (){
+
+    return 0 ;
 }
