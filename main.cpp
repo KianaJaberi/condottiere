@@ -204,9 +204,9 @@ class Condottiere {
 
             while ( checkWinner () == false ){
                 
-                if ( checkPlayersHands () == true ){
-                    shuffleCards () ;
-                }
+                shuffleCards () ;
+                peaceAndWarBadges () ;
+                luckyAndUnluckyNumbers () ;
             }
         }
 
@@ -346,9 +346,11 @@ class Condottiere {
 
                 if ( i == 0 ){
                     tempAge = age ;
+                    warBadgeHolder = 0 ;
                 }
 
                 if ( tempAge > age ){
+                    tempAge = age ;
                     warBadgeHolder = i ;
                 }
 
@@ -469,13 +471,140 @@ class Condottiere {
             }
         }
 
+        void peaceAndWarBadges (){
+            HANDLE color ;
+	        color = GetStdHandle ( STD_OUTPUT_HANDLE ) ;
+            bool flag = false ;
+
+            if ( peaceBadgeHolder != -1 ){
+                while ( true ){
+
+                    cout << players [ peaceBadgeHolder ].getName () << " choose a state for peace badge ( " ;
+
+                    for ( int i = 0 ; i < states.size () ; i ++ ){
+                        if ( i == 0 ){
+                            cout << states [i].getName () ;
+                        }
+                        else if ( i == ( states.size () - 1 ) ){
+                            cout << " / " << states [i].getName () << " ) : " ;
+                        }
+                        else {
+                            cout << " / " << states [i].getName () ;
+                        }
+                    }
+                    cin >> peaceBadge ;
+                    cout << "\n" ;
+
+                    for ( int i = 0 ; i < states.size () ; i ++ ){
+                        if ( states [i].getName () == peaceBadge ){
+                            flag = true ;
+                            break ;
+                        }
+                    }
+
+                    if ( flag == false ){
+                        SetConsoleTextAttribute ( color , 4 ) ;
+                        cout << "Error!\n" ;
+                        SetConsoleTextAttribute ( color , 7 ) ;
+
+                        continue ;
+                    }
+                    else {
+                        flag = false ;
+                        break ;
+                    }
+                }
+            }
+
+            while ( true ){
+
+                cout << players [ warBadgeHolder ].getName () << " choose a state for war badge ( " ;
+
+                for ( int i = 0 ; i < states.size () ; i ++ ){
+                    if ( i == 0 ){
+                        cout << states [i].getName () ;
+                    }
+                    else if ( i == ( states.size () - 1 ) ){
+                        cout << " / " << states [i].getName () << " ) : " ;
+                    }
+                    else {
+                        cout << " / " << states [i].getName () ;
+                    }
+                }
+                cin >> warBadge ;
+                cout << "\n" ;
+
+                for ( int i = 0 ; i < states.size () ; i ++ ){
+                    if ( states [i].getName () == warBadge ){
+                        flag = true ;
+                        break ;
+                    }
+                }
+
+                if ( flag == false ){
+                    SetConsoleTextAttribute ( color , 4 ) ;
+                    cout << "Error!\n" ;
+                    SetConsoleTextAttribute ( color , 7 ) ;
+
+                    continue ;
+                }
+                else {
+                    break ;
+                }
+            }
+        }
+
+        void luckyAndUnluckyNumbers (){
+            HANDLE color ;
+	        color = GetStdHandle ( STD_OUTPUT_HANDLE ) ;
+
+            while ( true ){
+                cout << players [ warBadgeHolder ].getName () << " enter lucky number ( must be between 10 and 99 ) : " ;
+                cin >> luckyNumber ;
+                cout << "\n" ;
+
+                if ( luckyNumber < 10 || luckyNumber > 99 ){
+                    SetConsoleTextAttribute ( color , 4 ) ;
+                    cout << "Error!\n" ;
+                    SetConsoleTextAttribute ( color , 7 ) ;
+
+                    continue ;
+                }
+                else {
+                    break ;
+                }
+            }
+
+            while ( true ){
+                cout << players [ warBadgeHolder ].getName () << " enter unlucky number ( must be between 10 and 99 ) : " ;
+                cin >> unluckyNumber ;
+                cout << "\n" ;
+
+                if ( unluckyNumber < 10 || unluckyNumber > 99 ){
+                    SetConsoleTextAttribute ( color , 4 ) ;
+                    cout << "Error!\n" ;
+                    SetConsoleTextAttribute ( color , 7 ) ;
+
+                    continue ;
+                }
+                else {
+                    break ;
+                }
+            }
+        }
+
     private :
         vector < State > states ;
         vector < Card > cards ;
         vector < Player > players ;
         vector < vector < Card > > cardsPlayed ;
         int numberOfPlayers ;
-        int warBadgeHolder = 0 ;
+        int warBadgeHolder = -1 ;
+        int peaceBadgeHolder = -1 ;
+        int luckyNumber ;
+        int unluckyNumber ;
+        string warBadge ;
+        string peaceBadge ;
 };
 
 int main (){
