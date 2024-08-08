@@ -46,99 +46,6 @@ class State {
         bool status = false ;
 };
 
-class Player {
-    public :
-        void setName ( string n ){
-            name = n ;
-        }
-
-        string getName (){
-        return name ;
-        }
-
-        void setColor ( string c ){
-            color = c ;
-        }
-
-        string getColor (){
-            return color ;
-        }
-
-        void setStates ( State s ){
-            states.push_back (s) ;
-        }
-
-        int numberOfStates (){
-            return states.size () ;
-        }
-
-        bool checkStates (){
-            if ( states.size () == 5 ){
-                return true ;
-            }
-            else {
-                int counter = 0 ;
-
-                for ( int i = 0 ; i < states.size () ; i ++ ){
-                    for ( int j = 0 ; j < states.size () ; j ++ ){
-                        if ( states [i].getVicinityState ( states [j].getName () ) == true ){
-                            counter ++ ;
-                        }
-                    }
-
-                    if ( counter == 2 ){
-                        return true ;
-                    }
-                    else {
-                        counter = 0 ;
-                    }
-                }
-                return false ;
-            }
-        }
-
-        void setCard ( Card temp ){
-            cards.push_back ( temp ) ;
-        }
-
-        void getCards ( vector < Card >& temp ){
-            for ( int i = 0 ; i < cards.size () ; i ++ ){
-                temp.push_back ( cards [i] ) ;
-            }
-        }
-
-        bool checkCards (){
-            if ( cards.size () == 0 ){
-                return true ;
-            }
-            else {
-                return false ;
-            }
-        }
-
-        void deleteCard ( Card c ){
-            for ( int i = 0 ; i < cards.size () ; i ++ ){
-                if ( cards [i].getName () == c.getName () ){
-                    auto it = cards.begin () + i ;
-                    cards.erase ( it ) ;
-                    break ;
-                }
-            }
-        }
-
-        void deleteCards (){
-            for ( int i = cards.size () ; i > 0 ; i -- ){
-                cards.pop_back () ;
-            }
-        }
-
-    private :
-        string name ;
-        string color ;
-        vector < State > states ;
-        vector < Card > cards ;
-};
-
 class Card {
     public :
         virtual void setName ( string n ){
@@ -195,6 +102,109 @@ class PurpleCardSuper : public PurpleCard {
         int point ;
 };
 
+class Player {
+    public :
+        void setName ( string n ){
+            name = n ;
+        }
+
+        string getName (){
+        return name ;
+        }
+
+        void setColor ( string c ){
+            color = c ;
+        }
+
+        string getColor (){
+            return color ;
+        }
+
+        void setStates ( State s ){
+            states.push_back (s) ;
+        }
+
+        void getStates ( vector < State >& temp ){
+            for ( int i = 0 ; i < states.size () ; i ++ ){
+                temp.push_back ( states [i] ) ;
+            }
+        }
+
+        int numberOfStates (){
+            return states.size () ;
+        }
+
+        bool checkStates (){
+            if ( states.size () == 5 ){
+                return true ;
+            }
+            else {
+                int counter = 0 ;
+
+                for ( int i = 0 ; i < states.size () ; i ++ ){
+                    for ( int j = 0 ; j < states.size () ; j ++ ){
+                        if ( states [i].getVicinityState ( states [j].getName () ) == true ){
+                            counter ++ ;
+                        }
+                    }
+
+                    if ( counter == 2 ){
+                        return true ;
+                    }
+                    else {
+                        counter = 0 ;
+                    }
+                }
+                return false ;
+            }
+        }
+
+        void setCard ( Card temp ){
+            cards.push_back ( temp ) ;
+        }
+
+        void getCards ( vector < Card >& temp ){
+            for ( int i = 0 ; i < cards.size () ; i ++ ){
+                temp.push_back ( cards [i] ) ;
+            }
+        }
+
+        int getSizeOfCards (){
+            return cards.size () ;
+        }
+
+        bool checkCards (){
+            if ( cards.size () == 0 ){
+                return true ;
+            }
+            else {
+                return false ;
+            }
+        }
+
+        void deleteCard ( Card c ){
+            for ( int i = 0 ; i < cards.size () ; i ++ ){
+                if ( cards [i].getName () == c.getName () ){
+                    auto it = cards.begin () + i ;
+                    cards.erase ( it ) ;
+                    break ;
+                }
+            }
+        }
+
+        void deleteCards (){
+            for ( int i = cards.size () ; i > 0 ; i -- ){
+                cards.pop_back () ;
+            }
+        }
+
+    private :
+        string name ;
+        string color ;
+        vector < State > states ;
+        vector < Card > cards ;
+};
+
 class Condottiere {
     public :
         void game (){
@@ -207,6 +217,18 @@ class Condottiere {
                 shuffleCards () ;
                 peaceAndWarBadges () ;
                 luckyAndUnluckyNumbers () ;
+
+                while ( checkPlayersHands () == false ){
+
+                    for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                        if ( ( warBadgeHolder + i ) < numberOfPlayers ){
+                            display ( warBadgeHolder + i ) ;
+                        }
+                        else {
+                            display ( ( warBadgeHolder + i ) - numberOfPlayers ) ;
+                        }
+                    }
+                }
             }
         }
 
@@ -301,6 +323,7 @@ class Condottiere {
                 cout << "\n" ;
 
                 if ( numberOfPlayers >= 3 && numberOfPlayers <= 6 ){
+                    system ( "cls" ) ;
                     break ;
                 }
                 else {
@@ -310,6 +333,12 @@ class Condottiere {
 
                     continue ;
                 }
+            }
+
+            cardsPlayed.resize ( numberOfPlayers ) ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                pass.push_back (0) ;
             }
 
             int age ;
@@ -414,6 +443,7 @@ class Condottiere {
                 }
 
                 players.push_back ( tempPlayer ) ;
+                system ( "cls" ) ;
             }
         }
 
@@ -593,11 +623,109 @@ class Condottiere {
             }
         }
 
+        void display ( int p ){
+            HANDLE color ;
+	        color = GetStdHandle ( STD_OUTPUT_HANDLE ) ;
+            string input ;
+
+            while ( true ){
+                cout << players [p].getName () << " are you ready ? ( yes or no ) : " ;
+                cin >> input ;
+                cout << "\n" ;
+
+                if ( input != "yes" && input != "no" ){
+                    SetConsoleTextAttribute ( color , 4 ) ;
+                    cout << "Error!\n" ;
+                    SetConsoleTextAttribute ( color , 7 ) ;
+
+                    continue ;
+                }
+
+                if ( input == "no" ){
+                    continue ;
+                }
+
+                system ( "cls" ) ;
+
+                for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                    cout << players [i].getName () << " : " ;
+
+                    for ( int j = 0 ; j < cardsPlayed [i].size () ; j ++ ){
+                        cout << cardsPlayed [i][j].getName () << " / " ;
+                    }
+
+                    cout << "\n" ;
+                }
+
+                cout << "________________________________________\n" ;
+
+                 for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                    cout << players [i].getName () << " : " ;
+
+                    vector < State > temp ;
+                    players [i].getStates ( temp ) ;
+
+                    for ( int j = 0 ; j < players [i].numberOfStates () ; j ++ ){
+                        cout << temp [j].getName () << " / " ;
+                    }
+
+                    cout << "\n" ;
+                }
+
+                cout << "________________________________________\n" ;
+
+                cout << warBadge << "\n" ;
+
+                vector < Card > temp ;
+                players [p].getCards ( temp ) ;
+
+                for ( int i = 0 ; i < temp.size () ; i ++ ){
+                    cout << temp [i].getName () << " / " ;
+                }
+
+                cout << "\n" ;
+
+                while ( true ){
+                    cin >> input ;
+                    cout << "\n" ;
+
+                    if ( input == "pass" ){
+                        pass [p] = 1 ;
+                        break ;
+                    }
+                    else {
+                        bool flag = false ;
+                        
+                        for ( int i = 0 ; i < temp.size () ; i ++ ){
+                            if ( temp [i].getName () == input ){
+                                flag = true ;
+                                setChoice ( p , temp [i] ) ;
+                            }
+                        }
+
+                        if ( flag == true ){
+                            break ;
+                        }
+                        else {
+                            SetConsoleTextAttribute ( color , 4 ) ;
+                            cout << "Error!\n" ;
+                            SetConsoleTextAttribute ( color , 7 ) ;
+
+                            continue ;
+                        }
+                    }
+                }
+                system ( "cls" ) ;
+                break ;
+            }
+        }
+
+        void setChoice ( int p , Card c ){
+            players [p].deleteCard (c) ;
+            cardsPlayed [p].push_back (c) ;
+        }
+
     private :
-        vector < State > states ;
-        vector < Card > cards ;
-        vector < Player > players ;
-        vector < vector < Card > > cardsPlayed ;
         int numberOfPlayers ;
         int warBadgeHolder = -1 ;
         int peaceBadgeHolder = -1 ;
@@ -605,9 +733,17 @@ class Condottiere {
         int unluckyNumber ;
         string warBadge ;
         string peaceBadge ;
+        vector < State > states ;
+        vector < Card > cards ;
+        vector < Player > players ;
+        vector < vector < Card > > cardsPlayed ;
+        vector < int > pass ;
 };
 
 int main (){
+
+    Condottiere c ;
+    c.game () ;
 
     return 0 ;
 }
