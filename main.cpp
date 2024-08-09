@@ -62,11 +62,11 @@ class Card {
 
 class YellowCard : public Card {
     public :
-        void setPoint ( int p ){
+        virtual void setPoint ( int p ){
             point = p ;
         }
 
-        int getPoint (){
+        virtual int getPoint (){
             return point ;
         }
 
@@ -76,11 +76,11 @@ class YellowCard : public Card {
 
 class PurpleCard : public Card {
     public :
-        void setPriority ( int p ){
+        virtual void setPriority ( int p ){
             priority = p ;
         }
 
-        int getPriority (){
+        virtual int getPriority (){
             return priority ;
         }
 
@@ -90,11 +90,11 @@ class PurpleCard : public Card {
 
 class PurpleCardSuper : public PurpleCard {
     public :
-        void setPoint ( int p ){
+        virtual void setPoint ( int p ){
             point = p ;
         }
 
-        int getPoint (){
+        virtual int getPoint (){
             return point ;
         }
 
@@ -212,23 +212,45 @@ class Condottiere {
             setCards () ;
             setInformation () ;
 
-            while ( checkWinner () == false ){
+            while ( checkWinner () == false && states.size () > 0 ){
                 
                 shuffleCards () ;
                 peaceAndWarBadges () ;
                 luckyAndUnluckyNumbers () ;
 
-                while ( checkPlayersHands () == false ){
+                while ( checkPlayersHands () == false && checkPass () == false ){
+                    bool flag = true ;
 
                     for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
                         if ( ( warBadgeHolder + i ) < numberOfPlayers ){
-                            display ( warBadgeHolder + i ) ;
+                            if ( players [i].getSizeOfCards () > 0 && pass [i] == 0 ){
+                                display ( warBadgeHolder + i ) ;
+                            }
                         }
                         else {
-                            display ( ( warBadgeHolder + i ) - numberOfPlayers ) ;
+                            if ( players [i].getSizeOfCards () > 0 && pass [i] == 0 ){
+                                display ( ( warBadgeHolder + i ) - numberOfPlayers ) ;
+                            }
+                        }
+
+                        if ( cardsPlayed [i][ cardsPlayed [i].size () - 1 ].getName () == "parcham_dar" ){
+                            flag = false ;
+                            break ;
+                        }
+                        else if ( cardsPlayed [i][ cardsPlayed [i].size () - 1 ].getName () == "matarsak" ){
+                            setMatarsak (i) ;
                         }
                     }
+                    if ( flag == false ){
+                        break ;
+                    }
                 }
+                // vector < int > points ;
+                // points.resize ( numberOfPlayers ) ;
+
+                // for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                //     points [i] = scoreCalculation (i) ;
+                // }
             }
         }
 
@@ -700,6 +722,15 @@ class Condottiere {
                             if ( temp [i].getName () == input ){
                                 flag = true ;
                                 setChoice ( p , temp [i] ) ;
+
+                                if ( input == "rish_sefid" ){
+                                    rishSefidHolder = p ;
+                                }
+                                else if ( input == "bahar" || input == "zemestan" ){
+                                    status = input ;
+                                }
+
+                                break ;
                             }
                         }
 
@@ -725,14 +756,85 @@ class Condottiere {
             cardsPlayed [p].push_back (c) ;
         }
 
+        bool checkPass (){
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                if ( pass [i] == 0 ){
+                    return false ;
+                }
+            }
+            return true ;
+        }
+
+        void setMatarsak ( int p ){
+            HANDLE color ;
+	        color = GetStdHandle ( STD_OUTPUT_HANDLE ) ;
+            string input ;
+
+            while ( true ){
+                bool flag = false ;
+
+                cout << players [p].getName () << " you can get a yellow card\n" ;
+
+                for ( int i = 0 ; i < cardsPlayed [p].size () ; i ++ ){
+                    if ( cardsPlayed [p][i].getName () == "sarbaz_1" || cardsPlayed [p][i].getName () == "sarbaz_2" ||
+                        cardsPlayed [p][i].getName () == "sarbaz_3" || cardsPlayed [p][i].getName () == "sarbaz_4" ||
+                        cardsPlayed [p][i].getName () == "sarbaz_5" || cardsPlayed [p][i].getName () == "sarbaz_6" ||
+                        cardsPlayed [p][i].getName () == "sarbaz_10" ){
+                        
+                        cout << cardsPlayed [p][i].getName () << " / " ;
+                    }
+                }
+
+                cout << "\n" ;
+                cout << players [p].getName () << " : " ;
+                cin >> input ;
+                cout << "\n" ;
+
+                if ( input == "sarbaz_1" || input == "sarbaz_2" || input == "sarbaz_3" || input == "sarbaz_4" ||
+                     input == "sarbaz_5" || input == "sarbaz_6" || input == "sarbaz_10" ){
+                    
+                    for ( int i = 0 ; i < cardsPlayed [p].size () ; i ++ ){
+
+                        if ( cardsPlayed [p][i].getName () == input ){
+                            players [p].setCard ( cardsPlayed [p][i] ) ;
+                            cardsPlayed [p].erase ( cardsPlayed [p].begin () + i ) ;
+
+                            flag = true ;
+                            break ;
+                        }
+                    }
+                }
+                else {
+                    SetConsoleTextAttribute ( color , 4 ) ;
+                    cout << "Error!\n" ; 
+                    SetConsoleTextAttribute ( color , 7 ) ;
+
+                    continue ;
+                }
+
+                if ( flag == true ){
+                    break ;
+                }
+                else {
+                    continue ;
+                }
+            }
+        }
+
+        // int scoreCalculation ( int p ){}
+
+        //void stateWinner (){}
+
     private :
         int numberOfPlayers ;
         int warBadgeHolder = -1 ;
         int peaceBadgeHolder = -1 ;
+        int rishSefidHolder = -1 ;
         int luckyNumber ;
         int unluckyNumber ;
         string warBadge ;
         string peaceBadge ;
+        string status ;
         vector < State > states ;
         vector < Card > cards ;
         vector < Player > players ;
