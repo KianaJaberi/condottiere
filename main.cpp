@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <algorithm>
 #include <random>
+#include <math.h>
 
 using namespace std ;
 
@@ -236,9 +237,6 @@ class Condottiere {
                         if ( cardsPlayed [i][ cardsPlayed [i].size () - 1 ].getName () == "parcham_dar" ){
                             flag = false ;
                             break ;
-                        }
-                        else if ( cardsPlayed [i][ cardsPlayed [i].size () - 1 ].getName () == "matarsak" ){
-                            setMatarsak (i) ;
                         }
                     }
                     if ( flag == false ){
@@ -724,7 +722,11 @@ class Condottiere {
                                 setChoice ( p , temp [i] ) ;
 
                                 if ( input == "rish_sefid" ){
-                                    rishSefidHolder = p ;
+                                    peaceBadgeHolder = p ;
+                                    setRishSefid () ;
+                                }
+                                else if ( input == "matarsak" ){
+                                    setMatarsak (p) ;
                                 }
                                 else if ( input == "bahar" || input == "zemestan" ){
                                     status = input ;
@@ -821,7 +823,178 @@ class Condottiere {
             }
         }
 
-        // int scoreCalculation ( int p ){}
+        void setRishSefid (){
+            string cardName = findTheMostValuableCards () ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                for ( int j = 0 ; j < cardsPlayed [i].size () ; j ++ ){
+
+                    if ( cardsPlayed[i][j].getName () == cardName ){
+                        cards.push_back ( cardsPlayed[i][j] ) ;
+                        cardsPlayed[i].erase ( cardsPlayed[i].begin () + j ) ;
+                    }
+                }
+            }
+        }
+
+        string findTheMostValuableCards (){
+            int theMostValuableCard = 0 ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                for ( int j = 0 ; j < cardsPlayed [i].size () ; j ++ ){
+
+                    if ( cardsPlayed [i][j].getName () == "sarbaz_10" ){
+                        theMostValuableCard = 10 ;
+                    }
+                    else if ( cardsPlayed [i][j].getName () == "sarbaz_6" ){
+                        if ( theMostValuableCard < 6 ){
+                            theMostValuableCard = 6 ;
+                        }
+                    }
+                    else if ( cardsPlayed [i][j].getName () == "sarbaz_5" ){
+                        if ( theMostValuableCard < 5 ){
+                            theMostValuableCard = 5 ;
+                        }
+                    }
+                    else if ( cardsPlayed [i][j].getName () == "sarbaz_4" ){
+                        if ( theMostValuableCard < 4 ){
+                            theMostValuableCard = 4 ;
+                        }
+                    }
+                    else if ( cardsPlayed [i][j].getName () == "sarbaz_3" ){
+                        if ( theMostValuableCard < 3 ){
+                            theMostValuableCard = 3 ;
+                        }
+                    }
+                    else if ( cardsPlayed [i][j].getName () == "sarbaz_2" ){
+                        if ( theMostValuableCard < 2 ){
+                            theMostValuableCard = 2 ;
+                        }
+                    }
+                    else if ( cardsPlayed [i][j].getName () == "sarbaz_1" ){
+                        if ( theMostValuableCard < 1 ){
+                            theMostValuableCard = 1 ;
+                        }
+                    }
+                }
+            }
+
+            if ( theMostValuableCard == 10 ){
+                return "sarbaz_10" ;
+            }
+            else if ( theMostValuableCard == 6 ){
+                return "sarbaz_6" ;
+            }
+            else if ( theMostValuableCard == 5 ){
+                return "sarbaz_5" ;
+            }
+            else if ( theMostValuableCard == 4 ){
+                return "sarbaz_4" ;
+            }
+            else if ( theMostValuableCard == 3 ){
+                return "sarbaz_3" ;
+            }
+            else if ( theMostValuableCard == 2 ){
+                return "sarbaz_2" ;
+            }
+            else if ( theMostValuableCard == 1 ){
+                return "sarbaz_1" ;
+            }
+        }
+
+        double scoreCalculation ( int p ){
+            double score = 0 ;
+            int numberOfTablZan = 0 ;
+
+            if ( status == "bahar" ){
+
+                string theMostValuableCard = findTheMostValuableCards () ;
+
+                for ( int i = 0 ; i < cardsPlayed [p].size () ; i ++ ){
+                    
+                    if ( cardsPlayed [p][i].getName () == theMostValuableCard ){
+                        score += 3 ;
+                        break ;
+                    }
+                }
+
+                status = "sull" ;
+            }
+
+            if ( status == "zemestan" ){
+
+                for ( int i = 0 ; i < cardsPlayed [p].size () ; i ++ ){
+
+                    if ( cardsPlayed [p][i].getName () == "sarbaz_2" || cardsPlayed [p][i].getName () == "sarbaz_3" ){
+                        score += 1 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_4" || cardsPlayed [p][i].getName () == "sarbaz_5" ){
+                        score += 2 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_6" ){
+                        score += 3 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_10" ){
+                        score += 5 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "shir_dokht" ){
+                        score += 10 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "tabl_zan" ){
+                        numberOfTablZan ++ ;
+                    }
+
+                    cards.push_back ( cardsPlayed [p][i] ) ;
+                    cardsPlayed [p].erase ( cardsPlayed [p].begin () + i ) ;
+                }
+
+                score *= pow ( 1.5 , numberOfTablZan ) ;
+                return score ;
+            }
+
+            if ( status == "sull" ){
+
+                for ( int i = 0 ; i < cardsPlayed [p].size () ; i ++ ){
+
+                    if ( cardsPlayed [p][i].getName () == "sarbaz_1" ){
+                        score += 1 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_2" ){
+                        score += 2 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_3" ){
+                        score += 3 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_4" ){
+                        score += 4 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_5" ){
+                        score += 5 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_6" ){
+                        score += 6 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "sarbaz_10" ){
+                        score += 10 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "shir_zan" ){
+                        score += 1 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "shir_dokht" ){
+                        score += 10 ;
+                    }
+                    else if ( cardsPlayed [p][i].getName () == "tabl_zan" ){
+                        numberOfTablZan ++ ;
+                    }
+
+                    cards.push_back ( cardsPlayed [p][i] ) ;
+                    cardsPlayed [p].erase ( cardsPlayed [p].begin () + i ) ;
+                }
+
+                score *= pow ( 1.5 , numberOfTablZan ) ;
+                return score ;
+            }
+        }
 
         //void stateWinner (){}
 
@@ -829,12 +1002,11 @@ class Condottiere {
         int numberOfPlayers ;
         int warBadgeHolder = -1 ;
         int peaceBadgeHolder = -1 ;
-        int rishSefidHolder = -1 ;
         int luckyNumber ;
         int unluckyNumber ;
         string warBadge ;
         string peaceBadge ;
-        string status ;
+        string status = "sull" ;
         vector < State > states ;
         vector < Card > cards ;
         vector < Player > players ;
