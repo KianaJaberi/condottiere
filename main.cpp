@@ -188,11 +188,99 @@ class Player {
 
 class Condottiere {
     public :
-        void game (){
+        void newGame (){
             setStates () ;
             setCards () ;
             setInformation () ;
 
+            game () ;
+        }
+
+        void continueGame ( int g ){
+
+            ifstream file ;
+
+            switch ( g ){
+                case 1 : file.open ( "savedGame1.txt" ) ;
+                    break;
+                case 2 : file.open ( "savedGame2.txt" ) ;
+                    break;
+                case 3 : file.open ( "savedGame3.txt" ) ;
+                    break;
+                case 4 : file.open ( "savedGame4.txt" ) ;
+                    break;
+                case 5 : file.open ( "savedGame5.txt" ) ;
+                    break;
+            }
+
+            setStates () ;
+            setCards () ;
+
+            file >> numberOfPlayers  ;
+            file >> warBadgeHolder   ;
+            file >> peaceBadgeHolder ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                string name ;
+                string color ;
+                Player temp ;
+
+                file >> name ;
+                file >> color ;
+
+                temp.setName ( name ) ;
+                temp.setColor ( color ) ;
+
+                players.push_back ( temp ) ;
+            }
+
+            int numberOfStates ;
+            vector < State > tempState ;
+
+            file >> numberOfStates   ;
+
+            for ( int i = 0 ; i < numberOfStates ; i ++ ){
+                string stateName ;
+                file >> stateName ;
+
+                for ( int j = 0 ; j < 15 ; j ++ ){
+                    if ( states [j].getName () == stateName ){
+                        tempState.push_back ( states [j] ) ;
+                        break ;
+                    }
+                }
+            }
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                int number ;
+                file >> number ;
+
+                for ( int j = 0 ; j < number ; j ++ ){
+                    string stateName ;
+                    file >> stateName ;
+
+                    for ( int j = 0 ; j < 15 ; j ++ ){
+                        if ( states [j].getName () == stateName ){
+                            players [i].setState ( states [j] ) ;
+                            break ;
+                        }
+                    }
+                }
+            }
+
+            for ( int i = 15 ; i > 0 ; i -- ){
+                states.pop_back () ;
+            }
+            for ( int i = 0 ; i < numberOfStates ; i ++ ){
+                states.push_back ( tempState [i] ) ;
+            }
+
+            file.close () ;
+
+            game () ;
+        }
+
+        void game (){
             while ( checkTheEndOfTheGame () == false ){
                 
                 shuffleCards () ;
@@ -737,7 +825,31 @@ class Condottiere {
                 cin >> input ;
                 cout << "\n" ;
 
-                if ( input == "pass" ){
+                if ( input == "save" ){
+                    int inputI ;
+
+                    while ( true ){
+                        cout << "1 , 2 , 3 , 4 or 5 ? \n" ;
+                        cin >> inputI ;
+                        cout << "\n" ;
+
+                        if ( inputI < 1 || inputI > 5 ){
+                            cout << "Error !\n" ;
+
+                            continue ;
+                        }
+                        else {
+                            saveGame ( inputI ) ;
+                            break ;
+                        }
+                    }
+                    break ;
+                }
+                else if ( input == "help" ){
+                    help () ;
+                    continue ;
+                }
+                else if ( input == "pass" ){
                     pass [p] = 1 ;
                     break ;
                 }
@@ -1129,13 +1241,73 @@ class Condottiere {
             }
         }
 
+        void saveGame ( int g ){
+            ofstream file ;
+
+            switch ( g ){
+                case 1 : file.open ( "savedGame1.txt" ) ;
+                    break;
+                case 2 : file.open ( "savedGame2.txt" ) ;
+                    break;
+                case 3 : file.open ( "savedGame3.txt" ) ;
+                    break;
+                case 4 : file.open ( "savedGame4.txt" ) ;
+                    break;
+                case 5 : file.open ( "savedGame5.txt" ) ;
+                    break;
+            }
+
+            file << numberOfPlayers  << "\n" ;
+            file << warBadgeHolder   << "\n" ;
+            file << peaceBadgeHolder << "\n" ;
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                file << players [i].getName  () << "\n" ;
+                file << players [i].getColor () << "\n" ;
+            }
+
+            file << states.size () << "\n" ;
+
+            for ( int i = 0 ; i < states.size () ; i ++ ){
+                file << states [i].getName () << "\n" ;
+            }
+
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                file << players [i].numberOfStates () << "\n" ;
+
+                vector < State > temp ;
+                players[i].getStates ( temp ) ;
+
+                for ( int j = 0 ; j < players [i].numberOfStates () ; j ++ ){
+                    file << temp [j].getName () << "\n" ;
+                }
+            }
+
+            file.close () ;
+            exit (0) ;
+        }
+
+        void help (){
+            ifstream file ;
+
+            file.open ( "help.txt" ) ;
+
+            string line ;
+
+            while ( getline ( file , line ) ){
+                cout << line << "\n" ;
+            }
+
+            file.close () ;
+            
+        }
+
     private :
         int numberOfPlayers = 0 ;
         int luckyNumber = 0 ;
         int unluckyNumber = 0 ;
         int warBadgeHolder = -1 ;
         int peaceBadgeHolder = -1 ;
-        int winner = -1 ;
         string warBadge ;
         string peaceBadge ;
         string status = "sull" ;
@@ -1149,7 +1321,50 @@ class Condottiere {
 int main (){
 
     Condottiere c ;
-    c.game () ;
+    string inputS ;
+    int inputI ;
+
+    cout << "hello :)\n" ;
+    cout << "1.new game ( new )\n2.saved game ( saved )\n" ;
+
+    while ( true ){
+        cin >> inputS ;
+        cout << "\n" ;
+
+        if ( inputS != "new" && inputS != "saved" ){
+            cout << "Error !\n" ;
+
+            continue ;
+        }
+        else {
+            break ;
+        }
+    }
+
+    if ( inputS == "new" ){
+        system ( "cls" ) ;
+        c.newGame () ;
+    }
+    else if ( inputS == "saved" ){
+
+        while ( true ){
+
+            cout << "1 , 2 , 3 , 4 or 5 ? \n" ;
+            cin >> inputI ;
+            cout << "\n" ;
+
+            if ( inputI < 1 || inputI > 5 ){
+                cout << "Error !\n" ;
+
+                continue ;
+            }
+            else {
+                break ;
+            }
+        }
+        system ( "cls" ) ;
+        c.continueGame ( inputI ) ;
+    }
 
     return 0 ;
 }
