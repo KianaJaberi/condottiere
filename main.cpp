@@ -583,8 +583,8 @@ class Condottiere {
                         return true ;
                     }
                 }
-                return false ;
             }
+            return false ;
         }
 
         void shuffleCards (){
@@ -1220,8 +1220,8 @@ class Condottiere {
                 pass [i] = 0 ;
             }
 
-            for ( int i = ( numberOfPlayers - 1 ) ; i > 0 ; i -- ){
-                for ( int j = ( cardsPlayed.size () - 1 ) ; j > 0 ; j -- ){
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                for ( int j = ( cardsPlayed [i].size () - 1 ) ; j >= 0 ; j -- ){
 
                     cards.push_back ( cardsPlayed [i][j] ) ;
                     cardsPlayed [i].pop_back () ;
@@ -1239,6 +1239,7 @@ class Condottiere {
 
                 players [i].deleteCards () ;
             }
+            status = "sull" ;
         }
 
         void saveGame ( int g ){
