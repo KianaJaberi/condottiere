@@ -197,7 +197,7 @@ class Condottiere {
         }
 
         void continueGame ( int g ){
-
+            
             ifstream file ;
 
             switch ( g ){
@@ -275,24 +275,31 @@ class Condottiere {
                 states.push_back ( tempState [i] ) ;
             }
 
-            file.close () ;
+            for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
+                pass.push_back (0) ;
+            }
 
+            cardsPlayed.resize ( numberOfPlayers ) ;
+
+            file.close () ;
+            
             game () ;
         }
 
         void game (){
+            
             while ( checkTheEndOfTheGame () == false ){
                 
                 shuffleCards () ;
                 peaceAndWarBadges () ;
                 luckyAndUnluckyNumbers () ;
-
+                
                 while ( checkTheEndOfTheWar () == false ){
                     bool flag = false ;
-
+                    
                     for ( int i = 0 ; i < numberOfPlayers ; i ++ ){
                         int temp ;
-
+                        
                         if ( ( warBadgeHolder + i ) < numberOfPlayers ){
                             temp = ( warBadgeHolder + i ) ;
 
